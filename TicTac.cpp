@@ -114,6 +114,8 @@ int findHeuristicValue(char gState[])
 
 void checkForWinner(char gState[])
 {
+		// function checks if any winning checks if any winning state has been attained by either of the players.
+		// it performs a row wise, column wise, & diagonal check.
 		gameOver = false;
 		winner = '-';
 		//row wise check
@@ -165,6 +167,7 @@ void checkForWinner(char gState[])
 
 int getEmptySpots(char gState[])
 {
+	//Counts the empty spots in the 3X3 Tic-Tac Toe puzzle board.
 		int count = 0;
 		xCount=0;
 		oCount=0;
@@ -182,6 +185,8 @@ int getEmptySpots(char gState[])
 
 int stateCheck(Node* x)
 {
+	// identifies the duplicate states in hashmap by rotating input state by 90,180,270 degrees. 
+    // This function is used by the rotation invariance algorithm	
 		map<string , int>::iterator it;
 		char *c1,*c2, *c3;
 		c1 = new char[9];
@@ -272,6 +277,9 @@ int stateCheck(Node* x)
 
 int findMinMax(Node *x)
 {
+// Calculates the min/max value in a particular tree level by identifying which player's turn is to player
+// x->level = X turn to play
+// x->level = O turn to play
 		int result;
 		if(x->level>0)
 		{
@@ -291,6 +299,8 @@ int findMinMax(Node *x)
 
 int DFS(Node *x, char c)
 {
+	// The main Min-Max algorithm was implemented using depth first search method by calulating either min or max value at each tree level
+	// depending on which player's turn is to place a move.
 		nodesExplored++;
 
 		int count = getEmptySpots(x->gameState);
@@ -335,7 +345,7 @@ int DFS(Node *x, char c)
 						x->childNodes[k]->value=DFS(x->childNodes[k],c);
 
 		}
-
+// For leaf nodes no need to recurse down to find the minmax value. 
 		if(x->terminal)	
 				return 0;
 		else
@@ -356,6 +366,11 @@ bool dDecompare(Node *x, Node *y)
 
 int alphaBeta(Node *x, int abprune[], int treeLevel, char c, bool rotationInv=false, bool killer=false,bool eHeuristic=false)
 {
+	//This function implements 4 algorithms based on setting last 4 parameters as either true or false.
+	// rotationInv - to activate the rotation invariance algorithm 
+	// killer - to activate the killer heuristics
+	// ehueristic - to activate a hueristic approach which chooses the path based on the highest difference value of valid empty spots for either players. 
+	// setting the above parameters as false, function will output the winner based on alpha-beta algorithm  
 		nodesExplored++;
 
 		int count = getEmptySpots(x->gameState);
@@ -406,6 +421,7 @@ int alphaBeta(Node *x, int abprune[], int treeLevel, char c, bool rotationInv=fa
 		char ch = c=='X'?'O':'X';
 		if(killer)
 		{
+			//Explore the previous path that resulted in alpha-beta pruning in the same tree level first.
 				if(killerPtr[treeLevel]!=0)
 				{
 						Node *p = new Node();
@@ -439,6 +455,7 @@ int alphaBeta(Node *x, int abprune[], int treeLevel, char c, bool rotationInv=fa
 						x->childNodes[k]->value=alphaBeta(x->childNodes[k],abprune,tLevel, ch, rotationInv,killer,eHeuristic);
 				else
 				{
+					
 						int nodeValue = stateCheck(x->childNodes[k]);
 
 						if(nodeValue!=2)
@@ -453,6 +470,7 @@ int alphaBeta(Node *x, int abprune[], int treeLevel, char c, bool rotationInv=fa
 								string strg(x->childNodes[k]->gameState);
 								if(!cutOff)
 								{
+									//rotation invariance gets activated only if there is no alpha-beta pruning 
 										ticMap[strg]=x->childNodes[k]->value;
 										ticMap[x->childNodes[k]->str1]=x->childNodes[k]->value;
 										ticMap[x->childNodes[k]->str2]=x->childNodes[k]->value;
